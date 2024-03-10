@@ -1,0 +1,18 @@
+[tool.poetry]
+name = "custom-quiz-website"
+version = "0.1.0"
+description = ""
+authors = ["gbanys <giedriusbanys150@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.9"
+fastapi = "^0.110.0"
+uvicorn = {extras = ["standard"], version = "^0.28.0"}
+jinja2 = "^3.1.3"
+mysql-connector-python = "^8.3.0"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
