@@ -1,0 +1,35 @@
+<html>
+    <head>
+        <title>Custom quiz website</title>
+        <link rel="stylesheet" href="static/styles/home_styles.css">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    </head>
+    <body>
+        <div class="topnav">
+            <a href="#home">Home</a>
+            <a href="#news">News</a>
+            <a href="#contact">Contact</a>
+            <div class="search-container">
+                <form>
+                  <input type="text" placeholder="Search.." name="search">
+                  <button type="submit"><i class="fa fa-search"></i></button>
+                </form>
+            </div>
+            <a href="#help" class="split">Help</a>
+            <a href="#signup" class="split">Sign up</a>
+            <a href="#login" class="split">Login</a>
+        </div>
+        <div style="text-align: center;">
+            <h1 style="text-align: center; position: relative; display: inline-block">Docker Quizzes</h1>
+            <img style="position: relative; display: inline-block; vertical-align: middle;"src="static/images/docker_logo.png" height="60px" width="100px">
+        </div>
+        <div style="margin-left: auto; margin-right: auto; margin-top: 2%; color: white;">
+            {% for tuple_object in quizzes %}
+            <div style="width: 50%; background-color: gray; margin-left: auto; margin-right: auto;">
+                <p style="position: relative; display: inline-block; margin-left: 10%;">{{tuple_object[1]}}</p>
+                <button class="custom_quiz_button" style="float: right;" onclick="location.href=`{{ url_for('return_quiz_page', user_id=1, quiz_id=tuple_object[0])}}`;">Start test</button>
+            </div>
+            {% endfor %}
+        </div>
+    </body>
+</html>

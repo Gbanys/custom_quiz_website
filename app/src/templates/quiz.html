@@ -1,0 +1,77 @@
+<html>
+<script>
+var ws = new WebSocket("ws://localhost:8000/ws");
+ws.onmessage = function(event) {
+    data = JSON.parse(event.data);
+    if(data.type === 'submit_answer'){
+        window.alert("hi");
+        for (var i = 0, len = data.correct_answer_ids.length ; i < len; i++) {
+            document.getElementById(data.correct_answer_ids[i].toString()).style.backgroundColor = "lime"
+        }
+        for (var j = 0, len = data.wrong_chosen_answer_ids.length ; j < len; j++) {
+            document.getElementById(data.wrong_chosen_answer_ids[j].toString()).style.backgroundColor = "orange";
+        }
+        createNextButton();
+    }
+};
+function createNextButton(){
+    document.getElementById("submit_answer_div").disabled = true;
+    bottom_choices = document.getElementById("bottom_choices");
+    next_button = document.createElement("img");
+    src = document.createAttribute("src");
+    src.value = "{{ url_for('static', path='/images/next.jpg') }}";
+    style = document.createAttribute("style");
+    style.value = "position: relative; display: inline-block; vertical-align: middle; height: 50px; width: 100px; cursor: pointer;"
+    onClick = document.createAttribute("onclick");
+    onClick.value = `location.reload()`;
+    next_button.setAttributeNode(src);
+    next_button.setAttributeNode(style);
+    next_button.setAttributeNode(onClick);
+    bottom_choices.appendChild(next_button);
+}
+function updateQuizQuestions(question_id){
+    var ids = [];
+    var children = document.getElementById("answer_list_div").children; //get container element children.
+    for (var i = 0, len = children.length ; i < len; i++) {
+        ids.push(children[i].id);
+    }
+    checked_ids = [];
+    for (var j = 0, len = ids.length ; j < len; j++) {
+        string = ids[j].toString().concat("_checkbox");
+        if (document.getElementById(string).checked){
+            checked_ids.push(ids[j])
+        }
+    }
+    ws.send(JSON.stringify({'status' : 'update_question', 'answer_ids' : checked_ids, 'question_id' : question_id}))
+}
+</script>
+    <head>
+        <title>Custom quiz website</title>
+        <link href="{{ url_for('static', path='/styles/quiz_page.css') }}" rel="stylesheet" type="text/css"/>
+    </head>
+    <body>
+        <div style="background-color: #2f404f; text-align: center; padding: 0; width:100%;">
+            <h1 style="position: relative; display: inline-block; vertical-align: top; color: #3ca1fa;">{{quiz_name}}</h1>
+            <img style="position: relative; display: inline-block;" src="{{ url_for('static', path='/images/docker_logo.png') }}" height="100px" width="200px">
+        </div>
+        <div class ="question_div">
+            {{question_name}}
+        </div>
+        <div id="answer_list_div">
+            {% for answer in answers %}
+                {% if answer[3] == question_id %}
+                    <div class="answer_box" id="{{answer[0]}}">
+                        <input type="checkbox" id="{{answer[0]}}_checkbox" style="position: relative; display: inline-block;">
+                        <p style="position: relative; display: inline-block; white-space: normal;">{{answer[1]}}</p>
+                    </div>
+                {% endif %}
+            {% endfor %}
+        </div>
+        <div id="bottom_choices" style="background-color: #2f404f; text-align: right; height: 10%; padding: 10px; margin-top: -10px;">
+            <div id="leave_quiz_div">
+                <p>Leave quiz</p>
+            </div>
+            <button id="submit_answer_div" onclick="updateQuizQuestions(`{{question_id}}`)">Submit</button>
+        </div>
+    </body>
+</html>

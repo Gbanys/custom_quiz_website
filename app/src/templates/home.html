@@ -19,7 +19,7 @@
             <a href="#signup" class="split">Sign up</a>
             <a href="#login" class="split">Login</a>
         </div>
-        <h1 style="text-align: center; font-size: 50px;">DevOps Quiz website</h1>
+        <h1 style="text-align: center; font-size: 50px;">DevOps Quiz Platform</h1>
         <div style="width: 100%;">
             <h3 style="margin: 30px 200px;">
                 Try one of the already created quizzes or create your own quizzes. Answer questions about the most commonly used DevOps tools
@@ -34,7 +34,7 @@
                 <img src="static/images/docker_logo.png" height="200px" width="300px">
                 <p>Docker is an open platform for developing, shipping, and running applications. This quiz pack contains Docker Basics and Docker Certified Associate (DCA) quizzes.
                 </p>
-                <button class="custom_quiz_button">Start learning</button>
+                <button class="custom_quiz_button" onclick="location.href=`{{ url_for('return_docker_quiz_menu_page')}}`;">Start learning</button>
             </div>
             <div style="position: relative; display: inline-block; box-shadow: 10px 10px; margin: 0px 50px; width: 300px; border: 2px solid black; height: 400px; vertical-align: top;">
                 <img src="static/images/kubernetes.jpg" height="200px" width="300px">
