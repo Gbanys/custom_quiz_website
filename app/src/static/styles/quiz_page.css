@@ -27,6 +27,7 @@ body{
     background-color: white;
     margin: 5%;
     padding: 10px;
+    white-space: wrap;
 }
 #leave_quiz_div{
     position: relative;

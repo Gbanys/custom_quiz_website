@@ -28,13 +28,14 @@ def create_local_mysql_database_and_tables():
         CREATE TABLE Quiz (
             id INT AUTO_INCREMENT PRIMARY KEY,
             name VARCHAR(255),
-            ongoing bool,
+            ongoing BOOL,
+            pass_rate INT NOT NULL,
             user_id INT NOT NULL,
             FOREIGN KEY (user_id) REFERENCES User(id)
         );
         CREATE TABLE Question (
             id INT AUTO_INCREMENT PRIMARY KEY,
-            question VARCHAR(255),
+            question TEXT,
             answered_correctly BOOL,
             quiz_id INT NOT NULL,
             FOREIGN KEY (quiz_id) REFERENCES Quiz(id)
@@ -42,6 +43,7 @@ def create_local_mysql_database_and_tables():
         CREATE TABLE Answer (
             id INT AUTO_INCREMENT PRIMARY KEY,
             answer VARCHAR(255),
+            is_correct BOOL,
             question_id INT NOT NULL,
             FOREIGN KEY (question_id) REFERENCES Question(id)
         );
@@ -60,6 +62,60 @@ def add_user(id: Optional[int], full_name: str) -> None:
     )
     database_connection.commit()
     cursor.close()
+
+
+def add_quiz_to_user(name: str, ongoing: bool, pass_rate: int, user_id: int, id: Optional[int] = None):
+    database_connection = connect_to_mysql(database='quiz_database')
+    cursor = database_connection.cursor()
+    cursor.executemany("""
+        INSERT INTO Quiz(id, name, ongoing, pass_rate, user_id) VALUES (%s, %s, %s, %s, %s);
+    """,
+        [(id, name, ongoing, pass_rate, user_id)]
+    )
+    database_connection.commit()
+    cursor.close()
+
+
+def add_question_to_quiz(question: str, quiz_id: int, is_answered: Optional[bool] = None, id: Optional[int] = None):
+    database_connection = connect_to_mysql(database='quiz_database')
+    cursor = database_connection.cursor()
+    cursor.executemany("""
+        INSERT INTO Question(id, question, answered_correctly, quiz_id) VALUES (%s, %s, %s, %s);
+    """,
+        [(id, question, is_answered, quiz_id)]
+    )
+    database_connection.commit()
+    cursor.close()
+
+
+def add_answer_to_question(answer: str, is_correct: bool, question_id: int, id: Optional[int] = None):
+    database_connection = connect_to_mysql(database='quiz_database')
+    cursor = database_connection.cursor()
+    cursor.executemany("""
+        INSERT INTO Answer(id, answer, is_correct, question_id) VALUES (%s, %s, %s, %s);
+    """,
+        [(id, answer, is_correct, question_id)]
+    )
+    database_connection.commit()
+    cursor.close()
+
+
+def get_latest_question_id_from_quiz(quiz_id: int):
+    database_connection = connect_to_mysql(database='quiz_database')
+    cursor = database_connection.cursor()
+    cursor.execute(f"SELECT id FROM Question WHERE quiz_id = {quiz_id} ORDER BY id DESC LIMIT 1")
+    question = cursor.fetchall()
+    cursor.close()
+    return question
+
+
+def get_latest_quiz_id_from_user(user_id: int):
+    database_connection = connect_to_mysql(database='quiz_database')
+    cursor = database_connection.cursor()
+    cursor.execute(f"SELECT id FROM Quiz WHERE user_id = {user_id} ORDER BY id DESC LIMIT 1")
+    question = cursor.fetchall()
+    cursor.close()
+    return question
 
 
 def get_quizzes_from_user(user_id: int):
@@ -115,5 +171,12 @@ def update_question_status(question_id: int, answered_correctly: bool):
     database_connection = connect_to_mysql(database='quiz_database')
     cursor = database_connection.cursor()
     cursor.execute(f"UPDATE Question SET answered_correctly = {answered_correctly} WHERE id = {question_id}")
+    cursor.close()
+    database_connection.commit()
+
+def reset_all_questions_from_quiz(quiz_id: int):
+    database_connection = connect_to_mysql(database='quiz_database')
+    cursor = database_connection.cursor()
+    cursor.execute(f"UPDATE Question SET answered_correctly = NULL WHERE quiz_id = {quiz_id}")
     cursor.close()
     database_connection.commit()

@@ -34,7 +34,7 @@
                 <img src="static/images/docker_logo.png" height="200px" width="300px">
                 <p>Docker is an open platform for developing, shipping, and running applications. This quiz pack contains Docker Basics and Docker Certified Associate (DCA) quizzes.
                 </p>
-                <button class="custom_quiz_button" onclick="location.href=`{{ url_for('return_docker_quiz_menu_page')}}`;">Start learning</button>
+                <button class="custom_quiz_button" onclick="location.href=`{{ url_for('return_quiz_menu_page', quiz_type='Docker')}}`;">Start learning</button>
             </div>
             <div style="position: relative; display: inline-block; box-shadow: 10px 10px; margin: 0px 50px; width: 300px; border: 2px solid black; height: 400px; vertical-align: top;">
                 <img src="static/images/kubernetes.jpg" height="200px" width="300px">
@@ -42,7 +42,7 @@
                     Kubernetes is a portable, extensible, open source platform for managing containerized workloads and services. 
                     This quiz pack contains Kubernetes Basics and Kubernetes Certified Administrator (KCA) quizzes.
                 </p>
-                <button class="custom_quiz_button">Start learning</button>
+                <button class="custom_quiz_button" onclick="location.href=`{{ url_for('return_quiz_menu_page', quiz_type='Kubernetes')}}`;">Start learning</button>
             </div>
         </div>
     </body>

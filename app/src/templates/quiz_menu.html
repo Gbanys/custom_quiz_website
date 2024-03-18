@@ -1,7 +1,7 @@
 <html>
     <head>
         <title>Custom quiz website</title>
-        <link rel="stylesheet" href="static/styles/home_styles.css">
+        <link rel="stylesheet" href="{{ url_for('static', path='/styles/home_styles.css') }}">
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
     </head>
     <body>
@@ -20,14 +20,18 @@
             <a href="#login" class="split">Login</a>
         </div>
         <div style="text-align: center;">
-            <h1 style="text-align: center; position: relative; display: inline-block">Docker Quizzes</h1>
-            <img style="position: relative; display: inline-block; vertical-align: middle;"src="static/images/docker_logo.png" height="60px" width="100px">
+            <h1 style="text-align: center; position: relative; display: inline-block">{{quiz_type}} Quizzes</h1>
+            {% if quiz_type == 'Docker' %}
+            <img style="position: relative; display: inline-block; vertical-align: middle;"src="{{ url_for('static', path='/images/docker_logo.png')}}" height="60px" width="100px">
+            {% elif quiz_type == 'Kubernetes' %}
+            <img style="position: relative; display: inline-block; vertical-align: middle;"src="{{ url_for('static', path='/images/kubernetes.jpg')}}" height="60px" width="100px">
+            {% endif %}
         </div>
         <div style="margin-left: auto; margin-right: auto; margin-top: 2%; color: white;">
             {% for tuple_object in quizzes %}
             <div style="width: 50%; background-color: gray; margin-left: auto; margin-right: auto;">
                 <p style="position: relative; display: inline-block; margin-left: 10%;">{{tuple_object[1]}}</p>
-                <button class="custom_quiz_button" style="float: right;" onclick="location.href=`{{ url_for('return_quiz_page', user_id=1, quiz_id=tuple_object[0])}}`;">Start test</button>
+                <button class="custom_quiz_button" style="float: right;" onclick="location.href=`{{ url_for('return_quiz_page', user_id=1, quiz_id=tuple_object[0], quiz_type=quiz_type)}}`;">Start test</button>
             </div>
             {% endfor %}
         </div>

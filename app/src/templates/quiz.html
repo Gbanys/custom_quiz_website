@@ -4,7 +4,6 @@ var ws = new WebSocket("ws://localhost:8000/ws");
 ws.onmessage = function(event) {
     data = JSON.parse(event.data);
     if(data.type === 'submit_answer'){
-        window.alert("hi");
         for (var i = 0, len = data.correct_answer_ids.length ; i < len; i++) {
             document.getElementById(data.correct_answer_ids[i].toString()).style.backgroundColor = "lime"
         }
@@ -13,15 +12,20 @@ ws.onmessage = function(event) {
         }
         createNextButton();
     }
+    else{
+
+    }
 };
 function createNextButton(){
     document.getElementById("submit_answer_div").disabled = true;
     bottom_choices = document.getElementById("bottom_choices");
     next_button = document.createElement("img");
+
     src = document.createAttribute("src");
     src.value = "{{ url_for('static', path='/images/next.jpg') }}";
     style = document.createAttribute("style");
     style.value = "position: relative; display: inline-block; vertical-align: middle; height: 50px; width: 100px; cursor: pointer;"
+
     onClick = document.createAttribute("onclick");
     onClick.value = `location.reload()`;
     next_button.setAttributeNode(src);
@@ -31,7 +35,7 @@ function createNextButton(){
 }
 function updateQuizQuestions(question_id){
     var ids = [];
-    var children = document.getElementById("answer_list_div").children; //get container element children.
+    var children = document.getElementById("answer_list_div").children;
     for (var i = 0, len = children.length ; i < len; i++) {
         ids.push(children[i].id);
     }
@@ -49,23 +53,39 @@ function updateQuizQuestions(question_id){
         <title>Custom quiz website</title>
         <link href="{{ url_for('static', path='/styles/quiz_page.css') }}" rel="stylesheet" type="text/css"/>
     </head>
+    {% if quiz_inprogress %}
     <body>
         <div style="background-color: #2f404f; text-align: center; padding: 0; width:100%;">
             <h1 style="position: relative; display: inline-block; vertical-align: top; color: #3ca1fa;">{{quiz_name}}</h1>
+            {% if quiz_type == 'Docker' %}
             <img style="position: relative; display: inline-block;" src="{{ url_for('static', path='/images/docker_logo.png') }}" height="100px" width="200px">
+            {% elif quiz_type == 'Kubernetes' %}
+            <img style="position: relative; display: inline-block;" src="{{ url_for('static', path='/images/kubernetes.jpg') }}" height="100px" width="200px">
+            {% endif %}
         </div>
         <div class ="question_div">
             {{question_name}}
         </div>
         <div id="answer_list_div">
-            {% for answer in answers %}
-                {% if answer[3] == question_id %}
-                    <div class="answer_box" id="{{answer[0]}}">
-                        <input type="checkbox" id="{{answer[0]}}_checkbox" style="position: relative; display: inline-block;">
-                        <p style="position: relative; display: inline-block; white-space: normal;">{{answer[1]}}</p>
-                    </div>
-                {% endif %}
-            {% endfor %}
+            {% if answers|length > 4 %}
+                {% for answer in answers %}
+                    {% if answer[3] == question_id %}
+                        <div class="answer_box" id="{{answer[0]}}">
+                            <input type="checkbox" id="{{answer[0]}}_checkbox" style="position: relative; display: inline-block;">
+                            <label for="{{answer[0]}}_checkbox" style="position: relative; display: inline-block; white-space: normal; cursor: pointer;">{{answer[1]}}</p>
+                        </div>
+                    {% endif %}
+                {% endfor %}
+            {% else %}
+                {% for answer in answers %}
+                    {% if answer[3] == question_id %}
+                        <div class="answer_box" id="{{answer[0]}}">
+                            <input type="radio" id="{{answer[0]}}_checkbox" style="position: relative; display: inline-block;", name="answer">
+                            <label for="{{answer[0]}}_checkbox" style="cursor: pointer;">{{answer[1]}}</label>
+                        </div>
+                    {% endif %}
+                {% endfor %}
+            {% endif %}
         </div>
         <div id="bottom_choices" style="background-color: #2f404f; text-align: right; height: 10%; padding: 10px; margin-top: -10px;">
             <div id="leave_quiz_div">
@@ -74,4 +94,24 @@ function updateQuizQuestions(question_id){
             <button id="submit_answer_div" onclick="updateQuizQuestions(`{{question_id}}`)">Submit</button>
         </div>
     </body>
+    {% else %}
+    <body>
+        <div style="position: relative; border: 3px solid black; height: 80%; top: 20%; width: 30%; margin: 0 auto; border-radius: 20px; white-space: normal; text-align: center;">
+        <h2 style="text-align: center;">Thank you for completing this quiz.</h2>
+        <br>
+        <h3 style="text-align: center;">Your score:</h3>
+        {% if number_of_questions_answered_correctly/total_number_of_questions * 100 >= pass_rate %}
+            <h3 style="text-align: center; font-size: 30px; color: green;">{{number_of_questions_answered_correctly}}/{{total_number_of_questions}}</h3>
+            <p><strong>Congratulations! You have passed the quiz. Go back to the menu and try a different quiz. Keep going!</strong></p>
+        {% else %}
+            <h3 style="text-align: center; font-size: 30px; color: red;">{{number_of_questions_answered_correctly}}/{{total_number_of_questions}}</h3>
+            <p><strong>Unfortunately, you didn't pass this time. You can choose to retry this quiz or go back to the menu and choose a different quiz.</strong></p>
+        {% endif %}
+        <div style="margin: 50px; text-align: center;">
+            <button style="position: relative; display: inline-block; background-color: #3ca1fa; color: white; margin-right: 20px; width: 150px; padding: 10px;" onclick="location.href=`{{ url_for('return_quiz_menu_page', quiz_type=quiz_type)}}`;">Go back to the menu</button>
+            <button id="submit_button" style="position: relative; display: inline-block; background-color: #3ca1fa; color: white; margin-left: 20px; width: 150px; padding: 10px;" onclick="location.href=`{{ url_for('reset_quiz', user_id=user_id, quiz_id=quiz_id, quiz_type=quiz_type)}}`;">Retry quiz</button>
+        </div>
+        </div>
+    </body>
+    {% endif %}
 </html>
